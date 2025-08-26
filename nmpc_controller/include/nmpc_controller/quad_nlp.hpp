@@ -7,10 +7,10 @@
 #ifndef __quadNLP_HPP__
 #define __quadNLP_HPP__
 
-#include <sys/resource.h>
-#include <rbdl/rbdl.h> 
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
+#include <rbdl/rbdl.h>
+#include <sys/resource.h>
 
 #include <IpIpoptData.hpp>
 #include <grid_map_core/grid_map_core.hpp>
@@ -53,7 +53,8 @@ enum SystemID {
   SIMPLE_TO_SIMPLE,
   SIMPLE_TO_COMPLEX,
   COMPLEX_TO_COMPLEX,
-  COMPLEX_TO_SIMPLE
+  COMPLEX_TO_SIMPLE,
+  YJ01,
 };
 
 enum FunctionID { FUNC, JAC, HESS };
@@ -108,7 +109,7 @@ struct NLPDiagnostics {
 };
 
 class quadNLP : public TNLP {
- public:
+public:
   /// Shared Pointer to Node
   rclcpp::Node::SharedPtr node_;
 
@@ -304,7 +305,8 @@ class quadNLP : public TNLP {
           double panic_weights, double constraint_panic_weights,
           double Q_temporal_factor, double R_temporal_factor,
           const Eigen::VectorXi &fixed_complexity_schedule,
-          const NLPConfig &config, rclcpp::Node::SharedPtr node, std::string robot_ns);
+          const NLPConfig &config, rclcpp::Node::SharedPtr node,
+          std::string robot_ns);
 
   /**
    * @brief Custom deep copy constructor
@@ -384,14 +386,15 @@ class quadNLP : public TNLP {
 
   virtual void update_initial_guess(const quadNLP &nlp_prev, int shift_idx);
 
-  virtual void update_solver(
-      const Eigen::VectorXd &initial_state, const Eigen::MatrixXd &ref_traj,
-      const Eigen::MatrixXd &foot_positions,
-      const std::vector<std::vector<bool>> &contact_schedule,
-      const Eigen::VectorXi &adaptive_complexity_schedule,
-      const Eigen::VectorXd &ground_height,
-      const double &first_element_duration_, int plan_index_diff,
-      const bool &init);
+  virtual void
+  update_solver(const Eigen::VectorXd &initial_state,
+                const Eigen::MatrixXd &ref_traj,
+                const Eigen::MatrixXd &foot_positions,
+                const std::vector<std::vector<bool>> &contact_schedule,
+                const Eigen::VectorXi &adaptive_complexity_schedule,
+                const Eigen::VectorXd &ground_height,
+                const double &first_element_duration_, int plan_index_diff,
+                const bool &init);
 
   void update_structure();
 
@@ -479,8 +482,8 @@ class quadNLP : public TNLP {
 
   // Get the idx-th relaxed constraints from constraint values
   template <typename T>
-  inline Eigen::Block<T> get_relaxed_primal_constraint_vals(
-      T &constraint_vals, const int &idx) const {
+  inline Eigen::Block<T>
+  get_relaxed_primal_constraint_vals(T &constraint_vals, const int &idx) const {
     return constraint_vals.block(relaxed_constraint_idxs_[idx], 0,
                                  2 * g_slack_vec_[idx], 1);
   }
@@ -647,7 +650,7 @@ class quadNLP : public TNLP {
 
   //@}
 
- private:
+private:
   /**@name Methods to block default compiler methods.
    *
    * The compiler automatically generates the following three methods.
