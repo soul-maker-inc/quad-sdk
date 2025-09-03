@@ -42,7 +42,7 @@ parameter.physics.inertia_body=parameter.physics.inertia_body+...
     parameter.physics.hip_offset(1)^2+parameter.physics.hip_offset(3)^2;
     parameter.physics.hip_offset(1)^2+parameter.physics.hip_offset(2)^2]); % Robot inertia (assume leg mass concentrated at hip)
 
-parameter.name = "go2"; % Model name
+parameter.name = "yj01"; % Model name
 parameter.n = 12; % State dimension
 parameter.m = 12; % Input dimension
 

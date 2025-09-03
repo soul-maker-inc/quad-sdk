@@ -1,27 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-MIT License (modified)
-
-Copyright (c) 2022 Ghost Robotics
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this **file** (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
--->
 <robot name="yj01" xmlns:xacro="http://www.ros.org/wiki/xacro">
   <xacro:arg name="prefix" default=""/>
   <xacro:property name="prefix" value="$(arg prefix)"/>
@@ -54,8 +31,6 @@ SOFTWARE.
     <inertial>
       <mass value="7.388"/>
       <!-- Uniform box -->
-      <!-- <inertia ixx="1/12*${bodyMass}*(${bodyWidth}*${bodyWidth} + ${bodyHeight}*${bodyHeight})"  ixy="0"  ixz="0" iyy="1/12*${bodyMass}*(${bodyLength}*${bodyLength} + ${bodyHeight}*${bodyHeight})" iyz="0" izz="1/12*${bodyMass}*(${bodyLength}*${bodyLength} + ${bodyWidth}*${bodyWidth})"/> -->
-      <!-- <inertia ixx="0.05194948266666667" ixy="0" ixz="0" iyy="0.16155046266666662" iyz="0" izz="0.22913446266666665"/> -->
       <inertia ixx="0.04948974933333334" ixy="0" ixz="0" iyy="0.15909072933333335" iyz="0" izz="0.20069994533333332"/>
     </inertial>
     <!-- Just copy geometry for collision -->
@@ -102,8 +77,6 @@ SOFTWARE.
     </collision>
     <inertial>
       <mass value="0.575"/>
-      <!-- <inertia ixx="1/12*${podMass}*${podLength}*${podLength} + 1/4*${podMass}*${podRadius}*${podRadius}"  ixy="0"  ixz="0" iyy="1/12*${podMass}*${podLength}*${podLength} + 1/4*${podMass}*${podRadius}*${podRadius}" iyz="0" izz="1/2*${podMass}*${podRadius}*$
-				{podRadius}" /> -->
       <inertia ixx="0.00066963541" ixy="0" ixz="0" iyy="0.00066963541" iyz="0" izz="0.0008696875"/>
     </inertial>
   </link>
@@ -259,7 +232,6 @@ SOFTWARE.
     <inertial>
       <mass value="0.015"/>
       <inertia ixx="0.000025" ixy="0" ixz="0" iyy="0.000025" iyz="0" izz="0.000025"/>
-      <!-- <inertia ixx="2/5*${toeMass}*${toeRadius}*${toeRadius}"  ixy="0"  ixz="0" iyy="2/5*${toeMass}*${toeRadius}*${toeRadius}" iyz="0" izz="2/5*${toeMass}*${toeRadius}*${toeRadius}" /> -->
     </inertial>
   </link>
   <gazebo reference="${prefix}toe0">
@@ -316,8 +288,6 @@ SOFTWARE.
     </collision>
     <inertial>
       <mass value="0.575"/>
-      <!-- <inertia ixx="1/12*${podMass}*${podLength}*${podLength} + 1/4*${podMass}*${podRadius}*${podRadius}"  ixy="0"  ixz="0" iyy="1/12*${podMass}*${podLength}*${podLength} + 1/4*${podMass}*${podRadius}*${podRadius}" iyz="0" izz="1/2*${podMass}*${podRadius}*$
-				{podRadius}" /> -->
       <inertia ixx="0.00066963541" ixy="0" ixz="0" iyy="0.00066963541" iyz="0" izz="0.0008696875"/>
     </inertial>
   </link>
@@ -372,10 +342,10 @@ SOFTWARE.
   <joint name="2" type="revolute">
     <parent link="${prefix}hip1"/>
     <child link="${prefix}upper1"/>
-    <axis xyz="0 -1 0"/>
+    <axis xyz="0 1 0"/>
     <origin rpy="0 3.14 0" xyz="0 0.10098 0"/>
     <!--  rpy="0 -0.3 0" -->
-    <limit effort="21" lower="-3.14" upper="1.57" velocity="37.7"/>
+    <limit effort="21" lower="-1.57" upper="3.14" velocity="37.7"/>
     <dynamics damping="0.0" friction="0.0"/>
   </joint>
   <!-- Transmission elements required for Gazebo -->
@@ -417,7 +387,7 @@ SOFTWARE.
   <joint name="3" type="revolute">
     <parent link="${prefix}upper1"/>
     <child link="${prefix}lower1"/>
-    <axis xyz="0 1 0"/>
+    <axis xyz="0 -1 0"/>
     <origin xyz="-0.250 0 0"/>
     <!--rpy="0 0.5 0"-->
     <limit effort="32" lower="-3.14" upper="3.14" velocity="25.1"/>
@@ -473,7 +443,6 @@ SOFTWARE.
     <inertial>
       <mass value="0.015"/>
       <inertia ixx="0.000025" ixy="0" ixz="0" iyy="0.000025" iyz="0" izz="0.000025"/>
-      <!-- <inertia ixx="2/5*${toeMass}*${toeRadius}*${toeRadius}"  ixy="0"  ixz="0" iyy="2/5*${toeMass}*${toeRadius}*${toeRadius}" iyz="0" izz="2/5*${toeMass}*${toeRadius}*${toeRadius}" /> -->
     </inertial>
   </link>
   <gazebo reference="${prefix}toe1">
@@ -530,8 +499,6 @@ SOFTWARE.
     </collision>
     <inertial>
       <mass value="0.575"/>
-      <!-- <inertia ixx="1/12*${podMass}*${podLength}*${podLength} + 1/4*${podMass}*${podRadius}*${podRadius}"  ixy="0"  ixz="0" iyy="1/12*${podMass}*${podLength}*${podLength} + 1/4*${podMass}*${podRadius}*${podRadius}" iyz="0" izz="1/2*${podMass}*${podRadius}*$
-				{podRadius}" /> -->
       <inertia ixx="0.00066963541" ixy="0" ixz="0" iyy="0.00066963541" iyz="0" izz="0.0008696875"/>
     </inertial>
   </link>
@@ -588,7 +555,6 @@ SOFTWARE.
     <child link="${prefix}upper2"/>
     <axis xyz="0 -1 0"/>
     <origin xyz="0 -0.10098 0"/>
-    <!--  rpy="0 -0.3 0" -->
     <limit effort="21" lower="-1.57" upper="3.14" velocity="37.7"/>
     <dynamics damping="0.0" friction="0.0"/>
   </joint>
@@ -687,7 +653,6 @@ SOFTWARE.
     <inertial>
       <mass value="0.015"/>
       <inertia ixx="0.000025" ixy="0" ixz="0" iyy="0.000025" iyz="0" izz="0.000025"/>
-      <!-- <inertia ixx="2/5*${toeMass}*${toeRadius}*${toeRadius}"  ixy="0"  ixz="0" iyy="2/5*${toeMass}*${toeRadius}*${toeRadius}" iyz="0" izz="2/5*${toeMass}*${toeRadius}*${toeRadius}" /> -->
     </inertial>
   </link>
   <gazebo reference="${prefix}toe2">
@@ -744,8 +709,6 @@ SOFTWARE.
     </collision>
     <inertial>
       <mass value="0.575"/>
-      <!-- <inertia ixx="1/12*${podMass}*${podLength}*${podLength} + 1/4*${podMass}*${podRadius}*${podRadius}"  ixy="0"  ixz="0" iyy="1/12*${podMass}*${podLength}*${podLength} + 1/4*${podMass}*${podRadius}*${podRadius}" iyz="0" izz="1/2*${podMass}*${podRadius}*$
-				{podRadius}" /> -->
       <inertia ixx="0.00066963541" ixy="0" ixz="0" iyy="0.00066963541" iyz="0" izz="0.0008696875"/>
     </inertial>
   </link>
@@ -800,10 +763,10 @@ SOFTWARE.
   <joint name="6" type="revolute">
     <parent link="${prefix}hip3"/>
     <child link="${prefix}upper3"/>
-    <axis xyz="0 -1 0"/>
+    <axis xyz="0 1 0"/>
     <origin rpy="0 -3.14 0" xyz="0 -0.10098 0"/>
     <!--  rpy="0 -0.3 0" -->
-    <limit effort="21" lower="-3.14" upper="1.57" velocity="37.7"/>
+    <limit effort="21" lower="-1.57" upper="3.14" velocity="37.7"/>
     <dynamics damping="0.0" friction="0.0"/>
   </joint>
   <!-- Transmission elements required for Gazebo -->
@@ -845,7 +808,7 @@ SOFTWARE.
   <joint name="7" type="revolute">
     <parent link="${prefix}upper3"/>
     <child link="${prefix}lower3"/>
-    <axis xyz="0 1 0"/>
+    <axis xyz="0 -1 0"/>
     <origin xyz="-0.250 0 0"/>
     <!--rpy="0 0.5 0"-->
     <limit effort="32" lower="-3.14" upper="3.14" velocity="25.1"/>
@@ -901,7 +864,6 @@ SOFTWARE.
     <inertial>
       <mass value="0.015"/>
       <inertia ixx="0.000025" ixy="0" ixz="0" iyy="0.000025" iyz="0" izz="0.000025"/>
-      <!-- <inertia ixx="2/5*${toeMass}*${toeRadius}*${toeRadius}"  ixy="0"  ixz="0" iyy="2/5*${toeMass}*${toeRadius}*${toeRadius}" iyz="0" izz="2/5*${toeMass}*${toeRadius}*${toeRadius}" /> -->
     </inertial>
   </link>
   <gazebo reference="${prefix}toe3">

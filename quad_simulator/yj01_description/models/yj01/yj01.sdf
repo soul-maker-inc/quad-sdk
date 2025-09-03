@@ -374,10 +374,10 @@
       <parent>hip3</parent>
       <child>upper3</child>
       <axis>
-        <xyz>0 -1 0</xyz>
+        <xyz>0 1 0</xyz>
         <limit>
-          <lower>-3.1400000000000001</lower>
-          <upper>1.5700000000000001</upper>
+          <lower>-1.5700000000000001</lower>
+          <upper>3.1400000000000001</upper>
           <effort>21</effort>
           <velocity>37.700000000000003</velocity>
         </limit>
@@ -441,7 +441,7 @@
       <parent>upper3</parent>
       <child>lower3</child>
       <axis>
-        <xyz>0 1 0</xyz>
+        <xyz>0 -1 0</xyz>
         <limit>
           <lower>-3.1400000000000001</lower>
           <upper>3.1400000000000001</upper>
@@ -888,10 +888,10 @@
       <parent>hip1</parent>
       <child>upper1</child>
       <axis>
-        <xyz>0 -1 0</xyz>
+        <xyz>0 1 0</xyz>
         <limit>
-          <lower>-3.1400000000000001</lower>
-          <upper>1.5700000000000001</upper>
+          <lower>-1.5700000000000001</lower>
+          <upper>3.1400000000000001</upper>
           <effort>21</effort>
           <velocity>37.700000000000003</velocity>
         </limit>
@@ -955,7 +955,7 @@
       <parent>upper1</parent>
       <child>lower1</child>
       <axis>
-        <xyz>0 1 0</xyz>
+        <xyz>0 -1 0</xyz>
         <limit>
           <lower>-3.1400000000000001</lower>
           <upper>3.1400000000000001</upper>

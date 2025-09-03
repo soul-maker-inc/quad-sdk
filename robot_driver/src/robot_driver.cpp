@@ -472,27 +472,14 @@ bool RobotDriver::updateControl() {
     if (leg_controller_->computeLegCommandArray(last_robot_state_msg_,
                                                 leg_command_array_msg_,
                                                 grf_array_msg_) == false) {
+
       for (int i = 0; i < num_feet_; ++i) {
         leg_command_array_msg_.leg_commands.at(i).motor_commands.resize(3);
-        if (robot_name == "yj01") {
-          // X型腿,0-2不变，1-3内折
-          for (int j = 0; j < 3; ++j) {
-            int joint_idx = 3 * i + j;
-            double joint_angle = stand_joint_angles_.at(j);
-            if ((i == 1 || i == 3) && j > 0)
-              joint_angle = -joint_angle;
-            robot_driver_utils::loadMotorCommandMsg(
-                joint_angle, 0, 0, stand_kp_.at(j), stand_kd_.at(j),
-                leg_command_array_msg_.leg_commands.at(i).motor_commands.at(j));
-          }
-        } else {
-          for (int j = 0; j < 3; ++j) {
-            int joint_idx = 3 * i + j;
-            robot_driver_utils::loadMotorCommandMsg(
-                stand_joint_angles_.at(j), 0, 0, stand_kp_.at(j),
-                stand_kd_.at(j),
-                leg_command_array_msg_.leg_commands.at(i).motor_commands.at(j));
-          }
+        for (int j = 0; j < 3; ++j) {
+          int joint_idx = 3 * i + j;
+          robot_driver_utils::loadMotorCommandMsg(
+              stand_joint_angles_.at(j), 0, 0, stand_kp_.at(j), stand_kd_.at(j),
+              leg_command_array_msg_.leg_commands.at(i).motor_commands.at(j));
         }
       }
     } else {
@@ -514,29 +501,14 @@ bool RobotDriver::updateControl() {
     }
     for (int i = 0; i < num_feet_; ++i) {
       leg_command_array_msg_.leg_commands.at(i).motor_commands.resize(3);
-      if (robot_name == "yj01") {
-        for (int j = 0; j < 3; ++j) {
-          double joint_angle = stand_joint_angles_.at(j);
-          if ((i == 1 || i == 3) && j > 0)
-            joint_angle = -joint_angle;
+      for (int j = 0; j < 3; ++j) {
+        double ang =
+            (stand_joint_angles_.at(j) - sit_joint_angles_.at(j)) * t_interp +
+            sit_joint_angles_.at(j);
 
-          double ang = (joint_angle - sit_joint_angles_.at(j)) * t_interp +
-                       sit_joint_angles_.at(j);
-
-          robot_driver_utils::loadMotorCommandMsg(
-              ang, 0, 0, stand_kp_.at(j), stand_kd_.at(j),
-              leg_command_array_msg_.leg_commands.at(i).motor_commands.at(j));
-        }
-      } else {
-        for (int j = 0; j < 3; ++j) {
-          double ang =
-              (stand_joint_angles_.at(j) - sit_joint_angles_.at(j)) * t_interp +
-              sit_joint_angles_.at(j);
-
-          robot_driver_utils::loadMotorCommandMsg(
-              ang, 0, 0, stand_kp_.at(j), stand_kd_.at(j),
-              leg_command_array_msg_.leg_commands.at(i).motor_commands.at(j));
-        }
+        robot_driver_utils::loadMotorCommandMsg(
+            ang, 0, 0, stand_kp_.at(j), stand_kd_.at(j),
+            leg_command_array_msg_.leg_commands.at(i).motor_commands.at(j));
       }
     }
   } else if (control_mode_ == READY_TO_SIT) {
@@ -550,29 +522,14 @@ bool RobotDriver::updateControl() {
 
     for (int i = 0; i < num_feet_; ++i) {
       leg_command_array_msg_.leg_commands.at(i).motor_commands.resize(3);
-      if (robot_name == "yj01") {
-        for (int j = 0; j < 3; ++j) {
-          double joint_angle = stand_joint_angles_.at(j);
-          if ((i == 1 || i == 3) && j > 0)
-            joint_angle = -joint_angle;
+      for (int j = 0; j < 3; ++j) {
+        double ang =
+            (sit_joint_angles_.at(j) - stand_joint_angles_.at(j)) * t_interp +
+            stand_joint_angles_.at(j);
 
-          double ang =
-              (sit_joint_angles_.at(j) - joint_angle) * t_interp + joint_angle;
-
-          robot_driver_utils::loadMotorCommandMsg(
-              ang, 0, 0, stand_kp_.at(j), stand_kd_.at(j),
-              leg_command_array_msg_.leg_commands.at(i).motor_commands.at(j));
-        }
-      } else {
-        for (int j = 0; j < 3; ++j) {
-          double ang =
-              (sit_joint_angles_.at(j) - stand_joint_angles_.at(j)) * t_interp +
-              stand_joint_angles_.at(j);
-
-          robot_driver_utils::loadMotorCommandMsg(
-              ang, 0, 0, stand_kp_.at(j), stand_kd_.at(j),
-              leg_command_array_msg_.leg_commands.at(i).motor_commands.at(j));
-        }
+        robot_driver_utils::loadMotorCommandMsg(
+            ang, 0, 0, stand_kp_.at(j), stand_kd_.at(j),
+            leg_command_array_msg_.leg_commands.at(i).motor_commands.at(j));
       }
     }
   } else {
