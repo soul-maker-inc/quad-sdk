@@ -27,6 +27,7 @@ find_package(std_msgs REQUIRED)
 find_package(tf2 REQUIRED)
 find_package(tf2_eigen REQUIRED)
 find_package(geometry_msgs REQUIRED)
+find_package(soul_link REQUIRED)
 
 # uncomment the following section in order to fill in
 # further dependencies manually.
@@ -44,7 +45,6 @@ else()
   set(GRMBLINK libgrmblink_linux.a)
 endif()
 
-
 # Source files
 add_library(robot_driver SHARED
   src/robot_driver.cpp
@@ -60,6 +60,7 @@ add_library(robot_driver SHARED
   src/estimators/ekf_estimator.cpp
   src/hardware_interfaces/hardware_interface.cpp
   src/hardware_interfaces/spirit_interface.cpp
+  src/hardware_interfaces/yj01_interface.cpp
 )
 
 target_link_libraries(robot_driver ${GRMBLINK})
@@ -72,6 +73,7 @@ target_link_libraries(robot_driver
   ${std_msgs_LIBRARIES}
   ${quad_msgs_LIBRARIES}
   ${quad_utils_LIBRARIES}
+  ${soul_link_LIBRARIES}
   Eigen3::Eigen
 )
 
@@ -84,6 +86,7 @@ ament_target_dependencies(robot_driver
   tf2_eigen
   tf2
   geometry_msgs
+  soul_link
 )
 
 add_executable(robot_driver_node src/robot_driver_node.cpp)
@@ -93,6 +96,7 @@ ament_target_dependencies(robot_driver_node
   std_msgs
   quad_msgs
   quad_utils
+  soul_link
 )
 
 

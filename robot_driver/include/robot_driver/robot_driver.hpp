@@ -1,7 +1,8 @@
 #ifndef ROBOT_DRIVER_H
 #define ROBOT_DRIVER_H
 
-#include <tf2_eigen/tf2_eigen.hpp>
+#include "nav_msgs/msg/path.hpp"
+#include <quad_msgs/msg/body_force_estimate.hpp>
 #include <quad_msgs/msg/grf_array.hpp>
 #include <quad_msgs/msg/leg_command.hpp>
 #include <quad_msgs/msg/leg_command_array.hpp>
@@ -9,29 +10,29 @@
 #include <quad_msgs/msg/multi_foot_plan_continuous.hpp>
 #include <quad_msgs/msg/robot_plan.hpp>
 #include <quad_msgs/msg/robot_state.hpp>
-#include <quad_msgs/msg/body_force_estimate.hpp>
 #include <quad_utils/function_timer.hpp>
 #include <quad_utils/math_utils.hpp>
 #include <quad_utils/ros_utils.hpp>
 #include <rclcpp/rclcpp.hpp>
 #include <std_msgs/msg/bool.hpp>
 #include <std_msgs/msg/u_int8.h>
-#include "nav_msgs/msg/path.hpp"
+#include <tf2_eigen/tf2_eigen.hpp>
 
 #include <cmath>
 #include <eigen3/Eigen/Eigen>
 
 #include "robot_driver/controllers/grf_pid_controller.hpp"
-#include "robot_driver/controllers/inverse_dynamics_controller.hpp"
-#include "robot_driver/controllers/underbrush_inverse_dynamics.hpp"
 #include "robot_driver/controllers/inertia_estimation_controller.hpp"
+#include "robot_driver/controllers/inverse_dynamics_controller.hpp"
 #include "robot_driver/controllers/joint_controller.hpp"
 #include "robot_driver/controllers/leg_controller.hpp"
+#include "robot_driver/controllers/underbrush_inverse_dynamics.hpp"
 #include "robot_driver/estimators/comp_filter_estimator.hpp"
 #include "robot_driver/estimators/ekf_estimator.hpp"
 #include "robot_driver/estimators/state_estimator.hpp"
 #include "robot_driver/hardware_interfaces/hardware_interface.hpp"
 #include "robot_driver/hardware_interfaces/spirit_interface.hpp"
+#include "robot_driver/hardware_interfaces/yj01_interface.hpp"
 #include "robot_driver/robot_driver_utils.hpp"
 
 #define MATH_PI 3.141592
@@ -45,20 +46,20 @@
    LegCommandArray message to control the robot's legs.
 */
 class RobotDriver {
- public:
+public:
   /**
    * @brief Constructor for RobotDriver
    * @param[in] node Shared pointer to rclcpp::Node
    * @return Constructed object of type RobotDriver
    */
-  RobotDriver(std::shared_ptr<rclcpp::Node>, int argc, char** argv);
+  RobotDriver(std::shared_ptr<rclcpp::Node>, int argc, char **argv);
 
   /**
    * @brief Calls ros spinOnce and pubs data at set frequency
    */
   void spin();
 
- private:
+private:
   /**
    * @brief Initializes leg controller object
    */
@@ -108,7 +109,8 @@ class RobotDriver {
    * @brief Callback to handle new leg override commands
    * @param[in] msg Leg override commands
    */
-  void singleJointCommandCallback(const geometry_msgs::msg::Vector3::SharedPtr msg);
+  void
+  singleJointCommandCallback(const geometry_msgs::msg::Vector3::SharedPtr msg);
 
   /**
    * @brief Callback to handle new body force estimates
@@ -173,28 +175,33 @@ class RobotDriver {
   rclcpp::Subscription<quad_msgs::msg::RobotState>::SharedPtr robot_state_sub_;
 
   /// ROS subscriber for body force estimates
-  rclcpp::Subscription<quad_msgs::msg::BodyForceEstimate>::SharedPtr body_force_estimate_sub_;
+  rclcpp::Subscription<quad_msgs::msg::BodyForceEstimate>::SharedPtr
+      body_force_estimate_sub_;
 
   /// ROS subscriber for control restart flag
-  rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr control_restart_flag_sub_;
+  rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr
+      control_restart_flag_sub_;
 
   /// ROS publisher for ground truth state
   rclcpp::Publisher<quad_msgs::msg::RobotState>::SharedPtr robot_state_pub_;
 
   // ROS publisher for state estimate
-  rclcpp::Publisher<quad_msgs::msg::RobotState>::SharedPtr trajectry_robot_state_pub_;
+  rclcpp::Publisher<quad_msgs::msg::RobotState>::SharedPtr
+      trajectry_robot_state_pub_;
 
   /// ROS subscriber for remote heartbeat
   rclcpp::Subscription<std_msgs::msg::Header>::SharedPtr remote_heartbeat_sub_;
 
   /// ROS subscriber for single joint command
-  rclcpp::Subscription<geometry_msgs::msg::Vector3>::SharedPtr single_joint_cmd_sub_;
+  rclcpp::Subscription<geometry_msgs::msg::Vector3>::SharedPtr
+      single_joint_cmd_sub_;
 
   /// ROS publisher for robot heartbeat
   rclcpp::Publisher<std_msgs::msg::Header>::SharedPtr robot_heartbeat_pub_;
 
   /// ROS publisher for inverse dynamics
-  rclcpp::Publisher<quad_msgs::msg::LegCommandArray>::SharedPtr leg_command_array_pub_;
+  rclcpp::Publisher<quad_msgs::msg::LegCommandArray>::SharedPtr
+      leg_command_array_pub_;
 
   /// ROS publisher for desired GRF
   rclcpp::Publisher<quad_msgs::msg::GRFArray>::SharedPtr grf_pub_;
@@ -207,7 +214,7 @@ class RobotDriver {
 
   /// ROS Wrapper Node
   std::shared_ptr<rclcpp::Node> node_;
-  
+
   // Robot Namespace
   std::string robot_ns;
 
@@ -405,7 +412,7 @@ class RobotDriver {
   int argc_;
 
   /// Required for some hardware interfaces
-  char** argv_;
+  char **argv_;
 };
 
-#endif  // ROBOT_DRIVER_H
+#endif // ROBOT_DRIVER_H

@@ -2,7 +2,6 @@
 #define LEG_CONTROLLER_H
 
 // #include <eigen_conversions/eigen_msg.h>
-#include <tf2_eigen/tf2_eigen.hpp>
 #include <quad_msgs/msg/grf_array.hpp>
 #include <quad_msgs/msg/leg_command.hpp>
 #include <quad_msgs/msg/leg_command_array.hpp>
@@ -12,9 +11,11 @@
 #include <quad_msgs/msg/robot_state.hpp>
 #include <quad_utils/math_utils.hpp>
 #include <quad_utils/ros_utils.hpp>
-#include <robot_driver/hardware_interfaces/spirit_interface.hpp>
 #include <rclcpp/rclcpp.hpp>
+#include <robot_driver/hardware_interfaces/spirit_interface.hpp>
+#include <robot_driver/hardware_interfaces/yj01_interface.hpp>
 #include <std_msgs/msg/u_int8.hpp>
+#include <tf2_eigen/tf2_eigen.hpp>
 
 #include <cmath>
 #include <eigen3/Eigen/Eigen>
@@ -27,12 +28,12 @@
    the robot.
 */
 class LegController {
- public:
+public:
   /**
    * @brief Constructor for LegController
    * @return Constructed object of type LegController
    */
-  LegController(rclcpp::Node::SharedPtr node, std::string& robot_ns);
+  LegController(rclcpp::Node::SharedPtr node, std::string &robot_ns);
 
   /**
    * @brief Set the desired proportional and derivative gains for all legs
@@ -76,15 +77,14 @@ class LegController {
   /**
    * @brief Compute the leg command array message
    */
-  virtual bool computeLegCommandArray(
-      const quad_msgs::msg::RobotState &robot_state_msg,
-      quad_msgs::msg::LegCommandArray &leg_command_array_msg,
-      quad_msgs::msg::GRFArray &grf_array_msg) = 0;
+  virtual bool
+  computeLegCommandArray(const quad_msgs::msg::RobotState &robot_state_msg,
+                         quad_msgs::msg::LegCommandArray &leg_command_array_msg,
+                         quad_msgs::msg::GRFArray &grf_array_msg) = 0;
 
   inline bool overrideStateMachine() { return override_state_machine_; }
 
- protected:
-
+protected:
   /// Shared Pointer to Launch Node
   rclcpp::Node::SharedPtr node_;
 
@@ -119,4 +119,4 @@ class LegController {
   bool override_state_machine_;
 };
 
-#endif  // LEG_CONTROLLER_H
+#endif // LEG_CONTROLLER_H
