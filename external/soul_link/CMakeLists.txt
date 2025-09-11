@@ -18,7 +18,10 @@ ADD_SUBDIRECTORY (lib)
 INCLUDE_DIRECTORIES (lib)
 
 add_library(soul_link
-  src/soul_link.cpp
+  src/motor.cpp
+  src/utils.cpp
+  src/mit_protocol.cpp
+  src/rsp_protocol.cpp
   # Add other reusable sources here if needed
 )
 
