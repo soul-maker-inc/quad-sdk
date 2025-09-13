@@ -2,9 +2,10 @@
 
 #include <cstddef>
 #include <map>
+#include <thread>
 
-#include "iTekCANFD.h"
 #include "motor.hpp"
+#include "soul_link/iTekCANFD.h"
 
 enum MotorProtocol {
   MotorProtocol_Private = 0,
@@ -43,6 +44,9 @@ public:
 
   bool OpenPort(int portIndex);
   void ClosePort(int portIndex);
+  inline bool IsPortOpened(int portIndex) const {
+    return m_canPorts[portIndex];
+  }
 
   Motor *NewMotor(int canPortIndex, int motorId);
 

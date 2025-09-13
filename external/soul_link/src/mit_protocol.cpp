@@ -134,6 +134,10 @@ void MitProtocol::GetMotorError(int motorId) {
   m_link->sendCanStdFrame(m->m_canPort, m->m_canId, data, 8);
 }
 
+void MitProtocol::StartReporting(int motorId) {}
+
+void MitProtocol::StopReporting(int motorId) {}
+
 void MitProtocol::handleCanMsg(const iTek_CANFD_Receive_Data &recvdata) {
 
   int frameid = recvdata.frame.can_id; // 标准帧，只有11bit

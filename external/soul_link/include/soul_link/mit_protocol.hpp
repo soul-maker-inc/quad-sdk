@@ -21,6 +21,9 @@ public:
   void SetMotorVelocity(int motorId, float angular_speed, float limit);
   void ClearMotorError(int motorId);
   void GetMotorError(int motorId);
+  void StartReporting(int motorId);
+  void StopReporting(int motorId);
+
   void handleCanMsg(const iTek_CANFD_Receive_Data &recvdata);
 
 private:

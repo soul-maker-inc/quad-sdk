@@ -1,6 +1,8 @@
 #ifndef YJ01_INTERFACE_H
 #define YJ01_INTERFACE_H
 
+#include <thread>
+
 #include <quad_msgs/msg/leg_command_array.hpp>
 #include <robot_driver/hardware_interfaces/hardware_interface.hpp>
 #include <sensor_msgs/msg/imu.hpp>
@@ -9,6 +11,9 @@
 #include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
 
 #include <eigen3/Eigen/Eigen>
+
+#include "soul_link/rsp_protocol.hpp"
+#include "soul_link/soul_link.hpp"
 
 //! Hardware interface for the Spirit40 quadruped from Ghost Robotics.
 /*!
@@ -66,6 +71,13 @@ public:
   /// Vector of kt values for each joint
   std::vector<double> kt_vec_ = {0.546, 0.546, 1.092, 0.546, 0.546, 1.092,
                                  0.546, 0.546, 1.092, 0.546, 0.546, 1.092};
+
+private:
+  static void recvProc(SoulLink<RspProtocol> *p);
+
+private:
+  SoulLink<RspProtocol> m_link;
+  std::thread *m_pRecvThread;
 };
 
 #endif // YJ01_INTERFACE_H

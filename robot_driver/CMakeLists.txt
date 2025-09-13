@@ -35,7 +35,9 @@ find_package(soul_link REQUIRED)
 
 # MBLink setup
 set(MBLINK_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../external/mblink/)
-include_directories(${MBLINK_DIR}/include)
+set(SOUL_LINK_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../external/soul_link/)
+
+include_directories(${MBLINK_DIR}/include ${SOUL_LINK_DIR}/include)
 link_directories(${MBLINK_DIR}/lib)
 
 message(STATUS "Using architecture ${CMAKE_SYSTEM_PROCESSOR}")
@@ -44,6 +46,8 @@ if (CMAKE_SYSTEM_PROCESSOR STREQUAL "arm" OR CMAKE_SYSTEM_PROCESSOR STREQUAL "aa
 else()
   set(GRMBLINK libgrmblink_linux.a)
 endif()
+
+find_library(SOUL_CANFD_LIB iTekCANFD)
 
 # Source files
 add_library(robot_driver SHARED
@@ -63,7 +67,7 @@ add_library(robot_driver SHARED
   src/hardware_interfaces/yj01_interface.cpp
 )
 
-target_link_libraries(robot_driver ${GRMBLINK})
+target_link_libraries(robot_driver ${GRMBLINK} ${SOUL_CANFD_LIB})
 target_include_directories(robot_driver PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>

@@ -120,7 +120,7 @@ void SoulLink<t_protocol>::ClosePort(int portIndex) {
 
   if (portIndex < 0 || portIndex > 3)
     return;
-  if (m_dev)
+  if (!m_dev)
     return;
   if (m_canPorts[portIndex] == NULL)
     return;
@@ -129,6 +129,7 @@ void SoulLink<t_protocol>::ClosePort(int portIndex) {
   iTek_ClearBuffer(candev);
   iTek_RestCAN(candev);
   m_canPorts[portIndex] = NULL;
+  printf("can port %d closed.\n", portIndex);
 }
 
 template <typename t_protocol>
@@ -145,9 +146,10 @@ template <typename t_protocol>
 void SoulLink<t_protocol>::recvCanMsgs(CHANNEL_HANDLE canhandle) {
 
   iTek_CANFD_Receive_Data recvdata[100];
-  int recvnum = iTek_Receive(canhandle, recvdata, 100, 2);
+  int recvnum = iTek_Receive(canhandle, recvdata, 100, 1);
 
   for (int j = 0; j < recvnum; j++) {
+    /*
     printf("[%d]recvtime:[%lx] canid:[%x] cantype:[%d] datalen:[%d] data[", j,
            recvdata[j].timestamp, recvdata[j].frame.can_id & 0x1fffffff,
            recvdata[j].frame.cantype, recvdata[j].frame.len);
@@ -157,7 +159,7 @@ void SoulLink<t_protocol>::recvCanMsgs(CHANNEL_HANDLE canhandle) {
     }
 
     printf("]\n");
-
+    */
     ((t_protocol *)this)->handleCanMsg(recvdata[j]);
   }
 }

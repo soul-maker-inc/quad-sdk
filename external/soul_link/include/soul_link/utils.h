@@ -34,5 +34,5 @@
 #define Data_Rate6M 0x00010200
 
 float uint16_to_float(uint16_t x, float x_min, float x_max, int bits);
-int float_to_uint(float x, float x_min, float x_max, int bits);
+uint32_t float_to_uint(float x, float x_min, float x_max, int bits);
 float Byte_to_float(uint8_t *bytedata);

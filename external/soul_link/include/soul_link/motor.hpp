@@ -12,6 +12,8 @@ public:
   void setupRobStrideRS02();
   void setupRobStrideRS04();
 
+  void printDebugInfo();
+
 protected:
   void initMotorParams();
 

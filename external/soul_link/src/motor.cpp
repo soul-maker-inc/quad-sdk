@@ -43,8 +43,8 @@ void Motor::initMotorParams() {
 
 void Motor::setupRobStrideRS02() {
 
-  m_posRange[0] = -12.5f;
-  m_posRange[1] = 12.5f;
+  m_posRange[0] = -12.57f;
+  m_posRange[1] = 12.57f;
   m_velRange[0] = -44.0f;
   m_velRange[1] = 44.0f;
   m_kpRange[0] = 0.0f;
@@ -66,4 +66,13 @@ void Motor::setupRobStrideRS04() {
   m_kdRange[1] = 100.0f;
   m_torqueRange[0] = -120.0f;
   m_torqueRange[1] = 120.0f;
+}
+
+void Motor::printDebugInfo() {
+  printf("motor %d pos: %0.3f\n", m_canId, m_position);
+  printf("motor %d T: %0.3f\n", m_canId, m_torque);
+  printf("motor %d vel: %0.3f\n", m_canId, m_velocity);
+  printf("motor %d temp: %0.3f\n", m_canId, m_temperature);
+  printf("motor %d warn: %X\n", m_canId, m_warnning);
+  printf("motor %d error: %X\n-------------------\n", m_canId, m_error);
 }
