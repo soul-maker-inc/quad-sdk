@@ -3,7 +3,7 @@
 <package format="3">
   <name>body_force_estimator</name>
   <version>0.0.0</version>
-  <description>TODO: Package description</description>
+  <description>The Body Force Estimator Package</description>
   <maintainer email="ologandavid@gmail.com">rml</maintainer>
   <license>MIT</license>
 
@@ -11,6 +11,11 @@
 
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
+  <depend>rclcpp</depend>
+  <depend>std_msgs</depend>
+  <depend>sensor_msgs</depend>
+  <depend>quad_utils</depend>
+  <depend>quad_msgs</depend>
 
   <export>
     <build_type>ament_cmake</build_type>

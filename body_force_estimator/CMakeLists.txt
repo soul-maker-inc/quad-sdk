@@ -7,14 +7,63 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(std_msgs REQUIRED)
+find_package(quad_msgs REQUIRED)
+find_package(quad_utils REQUIRED)
 # uncomment the following section in order to fill in
 # further dependencies manually.
 # find_package(<dependency> REQUIRED)
+
+add_library(${PROJECT_NAME}
+  src/body_force_estimator.cpp
+  src/body_force_estimator_dynamics.cpp
+)
+ament_target_dependencies(${PROJECT_NAME}
+  rclcpp
+  std_msgs
+  quad_msgs
+  quad_utils
+)
+target_include_directories(${PROJECT_NAME} PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>
+)
+
+add_executable(${PROJECT_NAME}_node src/body_force_estimator_node.cpp)
+target_link_libraries(${PROJECT_NAME}_node ${PROJECT_NAME})
+ament_target_dependencies(${PROJECT_NAME}_node
+  rclcpp
+  std_msgs
+  quad_msgs
+  quad_utils
+)
+
+install(TARGETS
+  ${PROJECT_NAME}
+  ${PROJECT_NAME}_node
+  DESTINATION lib/${PROJECT_NAME}
+)
 
 install(
   DIRECTORY config/
   DESTINATION share/${PROJECT_NAME}/config
 )
+
+install(
+  DIRECTORY include/
+  DESTINATION include
+)
+
+install(PROGRAMS
+  scripts/leg_flail.py
+  scripts/path_following.py
+  DESTINATION lib/${PROJECT_NAME}
+)
+
+ament_export_include_directories(include)
+ament_export_dependencies(rclcpp std_msgs quad_msgs quad_utils)
+
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)

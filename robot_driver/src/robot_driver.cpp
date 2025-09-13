@@ -7,7 +7,8 @@ RobotDriver::RobotDriver(std::shared_ptr<rclcpp::Node> node, int argc,
       trajectory_state_topic, local_plan_topic, leg_command_array_topic,
       control_mode_topic, remote_heartbeat_topic, robot_heartbeat_topic,
       single_joint_cmd_topic, mocap_topic, control_restart_flag_topic,
-      body_force_estimate_topic;
+      body_force_estimate_topic, cmd_vel_topic, cmd_vel_stamped_topic,
+      state_estimate_topic;
 
   quad_utils::loadROSParam(node_, "namespace", robot_ns);
   quad_utils::loadROSParam(node_, "robot_description", robot_description);
@@ -35,6 +36,11 @@ RobotDriver::RobotDriver(std::shared_ptr<rclcpp::Node> node, int argc,
   quad_utils::loadROSParam(node_, "topics.control.restart_flag",
                            control_restart_flag_topic);
   quad_utils::loadROSParam(node_, "topics.mocap", mocap_topic);
+  quad_utils::loadROSParam(node_, "topics.cmd_vel", cmd_vel_topic);
+  quad_utils::loadROSParam(node_, "topics.cmd_vel_stamped",
+                           cmd_vel_stamped_topic);
+  quad_utils::loadROSParam(node_, "topics.state.estimate",
+                           state_estimate_topic);
   quad_utils::loadROSParamDefault(node_, "is_hardware", is_hardware_, true);
   quad_utils::loadROSParamDefault(node_, "controller", controller_id_,
                                   std::string("inverse_dynamics"));
@@ -68,6 +74,10 @@ RobotDriver::RobotDriver(std::shared_ptr<rclcpp::Node> node, int argc,
   quad_utils::loadROSParam(node_, "robot_driver.sit_joint_angles",
                            sit_joint_angles_);
   quad_utils::loadROSParam(node_, "robot_driver.torque_limit", torque_limits_);
+  quad_utils::loadROSParam(node_, "robot_driver.model_path", model_path_);
+  quad_utils::loadROSParam(node_, "robot_driver.cmd_vel_filter_const",
+                           cmd_vel_filter_const_);
+  quad_utils::loadROSParam(node_, "robot_driver.cmd_vel_scale", cmd_vel_scale_);
 
   // Setup pubs and subs
   local_plan_sub_ = node_->create_subscription<quad_msgs::msg::RobotPlan>(
@@ -101,6 +111,10 @@ RobotDriver::RobotDriver(std::shared_ptr<rclcpp::Node> node, int argc,
       std::bind(&RobotDriver::controlRestartFlagCallback, this,
                 std::placeholders::_1));
 
+  cmd_vel_sub_ = node_->create_subscription<geometry_msgs::msg::Twist>(
+      cmd_vel_topic, 10,
+      std::bind(&RobotDriver::cmdVelCallback, this, std::placeholders::_1));
+
   grf_pub_ = node_->create_publisher<quad_msgs::msg::GRFArray>(grf_topic, 1);
   leg_command_array_pub_ =
       node_->create_publisher<quad_msgs::msg::LegCommandArray>(
@@ -110,11 +124,15 @@ RobotDriver::RobotDriver(std::shared_ptr<rclcpp::Node> node, int argc,
   trajectry_robot_state_pub_ =
       node_->create_publisher<quad_msgs::msg::RobotState>(
           trajectory_state_topic, 1);
+  cmd_vel_stamped_pub_ =
+      node_->create_publisher<geometry_msgs::msg::TwistStamped>(
+          cmd_vel_stamped_topic, 1);
+  state_estimate_pub_ = node_->create_publisher<quad_msgs::msg::RobotState>(
+      state_estimate_topic, 1);
 
   // Set up pubs and subs dependent on robot layer
   if (is_hardware_) {
     RCLCPP_INFO(node_->get_logger(), "Loading Hardware Robot Driver");
-
     mocap_sub_ = node_->create_subscription<geometry_msgs::msg::PoseStamped>(
         mocap_topic, 1000,
         std::bind(&RobotDriver::mocapCallback, this, std::placeholders::_1));
@@ -148,7 +166,6 @@ RobotDriver::RobotDriver(std::shared_ptr<rclcpp::Node> node, int argc,
     }
   }
 
-  // Initialize leg controller object
   initLegController();
 
   // Start sitting
@@ -220,15 +237,20 @@ void RobotDriver::initLegController() {
   } else if (controller_id_ == "inertia_estimation") {
     leg_controller_ =
         std::make_shared<InertiaEstimationController>(node_, robot_ns);
+  } else if (controller_id_ == "learned") {
+    leg_controller_ = std::make_shared<LearnedPolicy>(node_, robot_ns);
   } else {
     RCLCPP_ERROR(node_->get_logger(),
                  "Invalid controller id %s, returning nullptr",
                  controller_id_.c_str());
     leg_controller_ = nullptr;
   }
-  if (leg_controller_ != nullptr) {
+  if (leg_controller_ != nullptr && controller_id_ != "learned") {
     leg_controller_->init(stance_kp_, stance_kd_, swing_kp_, swing_kd_,
                           swing_kp_cart_, swing_kd_cart_);
+  } else {
+    leg_controller_->init(stance_kp_, stance_kd_, swing_kp_, swing_kd_,
+                          swing_kp_cart_, swing_kd_cart_, model_path_);
   }
 }
 
@@ -245,6 +267,7 @@ void RobotDriver::initStateControlStructs() {
   grf_array_msg_.contact_states.resize(4);
   grf_array_msg_.header.frame_id = "map";
   user_tx_data_.resize(1);
+  cmd_vel_.setZero(6);
 }
 
 void RobotDriver::controlModeCallback(
@@ -347,6 +370,26 @@ void RobotDriver::remoteHeartbeatCallback(
   remote_heartbeat_received_time_ = node_->now().seconds();
   double t_latency =
       remote_heartbeat_received_time_ - remote_heartbeat_sent_time;
+}
+
+void RobotDriver::cmdVelCallback(
+    const geometry_msgs::msg::Twist::SharedPtr msg) {
+  // Ignore non-planar components of desired twist
+  cmd_vel_[0] = (1 - cmd_vel_filter_const_) * cmd_vel_[0] +
+                cmd_vel_filter_const_ * cmd_vel_scale_ * msg->linear.x;
+  cmd_vel_[1] = (1 - cmd_vel_filter_const_) * cmd_vel_[1] +
+                cmd_vel_filter_const_ * cmd_vel_scale_ * msg->linear.y;
+  cmd_vel_[2] = 0;
+  cmd_vel_[3] = 0;
+  cmd_vel_[4] = 0;
+  cmd_vel_[5] = (1 - cmd_vel_filter_const_) * cmd_vel_[5] +
+                cmd_vel_filter_const_ * cmd_vel_scale_ * msg->angular.z;
+  last_cmd_vel_msg_ = *msg;
+  // Record when this was last reached for safety
+  if (auto c = std::dynamic_pointer_cast<LearnedPolicy>(leg_controller_)) {
+    last_cmd_vel_msg_time_ = node_->now();
+    c->updateCmdVelMsg(cmd_vel_, last_cmd_vel_msg_time_);
+  }
 }
 
 void RobotDriver::checkMessagesForSafety() {
@@ -474,7 +517,6 @@ bool RobotDriver::updateControl() {
     if (leg_controller_->computeLegCommandArray(last_robot_state_msg_,
                                                 leg_command_array_msg_,
                                                 grf_array_msg_) == false) {
-
       for (int i = 0; i < num_feet_; ++i) {
         leg_command_array_msg_.leg_commands.at(i).motor_commands.resize(3);
         for (int j = 0; j < 3; ++j) {
@@ -550,6 +592,7 @@ bool RobotDriver::updateControl() {
 
       // Add soft joint limit for knees
       if (j == knee_idx && joint_positions(joint_idx) > knee_soft_ub) {
+        RCLCPP_INFO(node_->get_logger(), "Triggering Soft Knee Joint Limit");
         leg_command_array_msg_.leg_commands.at(i)
             .motor_commands.at(j)
             .torque_ff = std::max(
@@ -572,11 +615,11 @@ bool RobotDriver::updateControl() {
       double fb_ratio =
           abs(fb_component) / (abs(fb_component) + abs(cmd.torque_ff));
       if (abs(cmd.torque_ff) >= torque_limits_[j]) {
-        RCLCPP_WARN(node_->get_logger(),
-                    "Leg %d motor %d: ff effort = %5.3f Nm exceeds threshold "
-                    "of %5.3f "
-                    "Nm",
-                    i, j, cmd.torque_ff, torque_limits_[j]);
+        RCLCPP_WARN(
+            node_->get_logger(),
+            "Leg %d motor %d: ff effort = %5.3f Nm exceeds threshold of %5.3f "
+            "Nm",
+            i, j, cmd.torque_ff, torque_limits_[j]);
       }
       if (abs(effort) >= torque_limits_[j]) {
         RCLCPP_WARN(
@@ -614,6 +657,13 @@ void RobotDriver::publishControl(bool is_valid) {
   grf_array_msg_.header.stamp = leg_command_array_msg_.header.stamp;
   grf_pub_->publish(grf_array_msg_);
   // }
+  geometry_msgs::msg::TwistStamped msg;
+  msg.header.stamp = node_->now();
+  msg.twist = last_cmd_vel_msg_;
+  cmd_vel_stamped_pub_->publish(msg);
+  last_state_estimate_msg_ = last_robot_state_msg_;
+  last_state_estimate_msg_.header.stamp = node_->now();
+  state_estimate_pub_->publish(last_state_estimate_msg_);
 
   // Send command to the robot
   if (is_hardware_ && is_valid) {
@@ -655,12 +705,10 @@ void RobotDriver::spin() {
     // Compute the leg command and publish if valid
     bool is_valid = updateControl();
     publishControl(is_valid);
-    //  RCLCPP_INFO(node_->get_logger(), "Publishes Control");
 
     // // // Publish state and heartbeat
     publishState();
     publishHeartbeat();
-    //  RCLCPP_INFO(node_->get_logger(), "Publishes State");
 
     // Enforce update rate
     r.sleep();

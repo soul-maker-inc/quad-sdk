@@ -3,8 +3,17 @@
 Yj01Interface::Yj01Interface() : HardwareInterface(), m_pRecvThread(NULL) {}
 
 void Yj01Interface::loadInterface(int argc, char **argv) {
-  m_link.InitUSB();
-  m_link.OpenDevice(0);
+  std::cout << "[Yj01Interface::loadInterface] start" << std::endl;
+  if (!m_link.InitUSB()) {
+    std::cout << "[Yj01Interface::loadInterface] init usb failed" << std::endl;
+  }
+  if (!m_link.OpenDevice(0)) {
+    std::cout << "[Yj01Interface::loadInterface] open dev 0 failed"
+              << std::endl;
+  }
+  std::cout << "[Yj01Interface::loadInterface] initing can ports & motors"
+            << std::endl;
+
   for (int i = 0; i < 4; ++i) {
     m_link.OpenPort(i);
     for (int j = 0; j < 3; ++j) {
@@ -22,21 +31,28 @@ void Yj01Interface::loadInterface(int argc, char **argv) {
     m_link.EnableMotor(wheelCanId);
     m_link.StartReporting(wheelCanId);
   }
+  std::cout << "[Yj01Interface::loadInterface] start listening can ports"
+            << std::endl;
   m_pRecvThread = new std::thread(recvProc, &m_link);
+  std::cout << "[Yj01Interface::loadInterface] end" << std::endl;
 }
 
 void Yj01Interface::unloadInterface() {
+  std::cout << "[Yj01Interface::unloadInterface] start" << std::endl;
   for (int i = 0; i < 4; ++i) {
     m_link.ClosePort(i);
   }
   m_link.CloseDevice();
   m_link.DeinitUSB();
 
+  std::cout << "[Yj01Interface::unloadInterface] waiting for listening thread"
+            << std::endl;
   if (m_pRecvThread) {
     m_pRecvThread->join();
     delete m_pRecvThread;
     m_pRecvThread = NULL;
   }
+  std::cout << "[Yj01Interface::unloadInterface] end" << std::endl;
 }
 
 bool Yj01Interface::send(

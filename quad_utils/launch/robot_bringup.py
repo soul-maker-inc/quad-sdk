@@ -28,6 +28,8 @@ def load_robot_params(context, *args, **kwargs):
         config_file = 'a1.yaml'
     elif robot_type == 'go2':
         desc_pkg = 'go2_description'
+        # urdf_file = 'go2_learned.urdf.xacro'
+        # sdf_file = 'go2_learned.sdf.xacro'
         urdf_file = 'go2.urdf.xacro'
         sdf_file = 'go2.sdf.xacro'
         config_file = 'go2.yaml'
@@ -84,7 +86,7 @@ def launch_robot_urdf_node(context, *args, **kwargs):
         executable='robot_state_publisher',
         name='robot_state_publisher',
         parameters=[{'robot_description': urdf}],
-        output='screen'
+        # output='screen'
     )
     return [set_qos_env, robot_state_urdf_node]
 
@@ -97,18 +99,20 @@ def spawn_sdf_model(context, *args, **kwargs):
     spawn_node = Node(
         package='ros_gz_sim',
         executable='create',
-        output='screen',
+        # output='screen',
         arguments=[
             '-name', namespace,
             '-string', sdf,
             '-x', init_pose.split()[1],
             '-y', init_pose.split()[3],
             '-z', init_pose.split()[5],
-            '-allow_renaming', 'true'
+            '-allow_renaming', 'true',
+            # '--ros-args', '--log-level', 'debug'
         ],
         additional_env={  
             'GZ_SIM_RESOURCE_PATH': (EnvironmentVariable('GZ_SIM_RESOURCE_PATH')),
-            'GZ_SIM_SYSTEM_PLUGIN_PATH': (EnvironmentVariable('GZ_SIM_SYSTEM_PLUGIN_PATH'))}
+            'GZ_SIM_SYSTEM_PLUGIN_PATH': (EnvironmentVariable('GZ_SIM_SYSTEM_PLUGIN_PATH')),
+            'GZ_SIM_VERBOSE': '1'}
             
     )
     return [spawn_node] 
@@ -122,7 +126,7 @@ def spawn_controller_broadcasters(context, *args, **kwargs):
             'joint_state_broadcaster',
             '--controller-manager', f'/{namespace}/controller_manager',
         ],
-        output='screen'
+        # output='screen'
     ) 
 
     spawn_joint_controller = ExecuteProcess(
@@ -131,7 +135,7 @@ def spawn_controller_broadcasters(context, *args, **kwargs):
             'joint_controller',
             '--controller-manager', f'/{namespace}/controller_manager'
         ],
-        output='screen'
+        # output='screen'
     )
 
     # Optional delay to give controller_manager time to start
@@ -237,7 +241,7 @@ def access_terrain_map(context, *args, **kwargs):
             executable='relay',
             name='terrain_map_relay',
             arguments=['/mapping/terrain_map', 'terrain_map'],  # relative → becomes /robot_X/terrain_map
-            output='screen',
+            # output='screen',
             parameters=[{'use_sim_time': True}],
         )
     ]
@@ -339,7 +343,7 @@ def launch_contact_state_publisher(context, *args, **kwargs):
             executable='contact_state_publisher_node',
             # name='contact_state_publisher_node',
             # namespace=namespace,
-            output='screen',
+            # output='screen',
             parameters=[config_file,
                         {'namespace': namespace, 
                          'world': world_name, 
@@ -386,10 +390,8 @@ def generate_launch_description():
         OpaqueFunction(function=load_robot_params),
         OpaqueFunction(function=launch_robot_urdf_node),
         OpaqueFunction(function=spawn_sdf_model),
-        # OpaqueFunction(function=spawn_sdf_model_with_driver), 
         OpaqueFunction(function=harmonic_ros_bridge),
         OpaqueFunction(function=access_terrain_map),
-        # OpaqueFunction(function=launch_controller_manager),
         OpaqueFunction(function=spawn_controller_broadcasters),
         OpaqueFunction(function=launch_robot_driver),
         OpaqueFunction(function=launch_contact_state_publisher),

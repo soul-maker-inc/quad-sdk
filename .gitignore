@@ -6,3 +6,5 @@ docs/
 external/ipopt/*
 !external/ipopt/.gitkeep
 *.csv
+robot_driver/include/robot_driver/models/
+matlab_msg_gen/

@@ -37,6 +37,25 @@ def launch_ignition_world(context, *args, **kwargs):
         ])
     ]
 
+def launch_obstacles(context, *args, **kwargs):
+    obstacle_launch_path = PathJoinSubstitution([
+        FindPackageShare('quad_utils'),
+        'launch',
+        'spawn_obstacles.py'
+        ])
+    return[
+        GroupAction([
+            PushRosNamespace('remote'),
+            IncludeLaunchDescription(
+                PythonLaunchDescriptionSource(obstacle_launch_path),
+                launch_arguments={
+                    'scenario' : LaunchConfiguration('scenario'),
+                    'obstacles':LaunchConfiguration('obstacles')
+                }.items()
+            )
+        ])
+    ]
+
 def bridge_global_clock(context, *args, **kwargs):
     return [
         Node(
@@ -45,7 +64,7 @@ def bridge_global_clock(context, *args, **kwargs):
             name='clock_bridge',
             namespace='',
             arguments=['/clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock'],
-            output='screen'
+            # output='screen'
         )
     ]
 
@@ -136,7 +155,7 @@ def launch_plot_juggler(context, *args, **kwargs):
     return [
         ExecuteProcess(
             cmd=['plotjuggler'],
-            output='screen',
+            # output='screen',
             shell=False
         )
     ]
@@ -145,7 +164,7 @@ def launch_plot_juggler(context, *args, **kwargs):
 def generate_launch_description():
     declared_args = [
         DeclareLaunchArgument('world', default_value='flat.sdf', description='SDF world file name to load into simulation'),
-        DeclareLaunchArgument('gui', default_value='true', description='Whether to launch the Gazebo GUI'),
+        DeclareLaunchArgument('gui', default_value='false', description='Whether to launch the Gazebo GUI'),
         DeclareLaunchArgument('paused', default_value='false', description='Whether to start the simulation in a paused state'),
         DeclareLaunchArgument('verbose', default_value='false', description='Launch the simulator in verbose mode'),
         DeclareLaunchArgument('live_plot', default_value='false', description='Launch Plot Juggler'),
@@ -154,13 +173,17 @@ def generate_launch_description():
         DeclareLaunchArgument('use_sim_time', default_value='true', description='Whether to use Computer Clock or Sim Clock'),
         DeclareLaunchArgument(
             'robot_configs',
-            default_value='[{"name": "robot_1", "type": "spirit", "controller": "inverse_dynamics", "init_pose" : "-x 0.0 -y 0.0 -z 2"}]',
-            description='A JSON List of robot configurations: MUST specifiy name, type, and controller'
+            default_value='[{"name": "robot_1", "type": "go2", "controller": "inverse_dynamics", "init_pose" : "-x 0.0 -y 0.0 -z 5"}]',
+            description='A JSON List of robot configurations: MUST specifiy name, type, controller, and spawn pose'
         ),
+        DeclareLaunchArgument('scenario', default_value="None", description='Custom Obstacle Scenario to Spawn e.g. Underbrush, Procedural Underbrush)'),
+        DeclareLaunchArgument('obstacles', default_value='[]',
+            description= 'A JSON List of obstacles to spawn (e.g {"name": "box", "init_pose" : "-x 3.0 -y 0.0 -z 2"})')
     ]
 
     return LaunchDescription(declared_args + [
         OpaqueFunction(function=launch_ignition_world),
+        OpaqueFunction(function=launch_obstacles),
         OpaqueFunction(function=bridge_global_clock),
         OpaqueFunction(function=launch_robot_mapping),
         OpaqueFunction(function=launch_robot_group),

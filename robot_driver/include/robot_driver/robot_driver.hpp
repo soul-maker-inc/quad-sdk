@@ -1,6 +1,7 @@
 #ifndef ROBOT_DRIVER_H
 #define ROBOT_DRIVER_H
 
+#include "geometry_msgs/msg/twist_stamped.hpp"
 #include "nav_msgs/msg/path.hpp"
 #include <quad_msgs/msg/body_force_estimate.hpp>
 #include <quad_msgs/msg/grf_array.hpp>
@@ -17,6 +18,7 @@
 #include <std_msgs/msg/bool.hpp>
 #include <std_msgs/msg/u_int8.h>
 #include <tf2_eigen/tf2_eigen.hpp>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
 
 #include <cmath>
 #include <eigen3/Eigen/Eigen>
@@ -25,6 +27,7 @@
 #include "robot_driver/controllers/inertia_estimation_controller.hpp"
 #include "robot_driver/controllers/inverse_dynamics_controller.hpp"
 #include "robot_driver/controllers/joint_controller.hpp"
+#include "robot_driver/controllers/learned_policy.hpp"
 #include "robot_driver/controllers/leg_controller.hpp"
 #include "robot_driver/controllers/underbrush_inverse_dynamics.hpp"
 #include "robot_driver/estimators/comp_filter_estimator.hpp"
@@ -130,6 +133,7 @@ private:
    */
   void remoteHeartbeatCallback(const std_msgs::msg::Header::SharedPtr msg);
 
+  void cmdVelCallback(const geometry_msgs::msg::Twist::SharedPtr msg);
   /**
    * @brief Check to make sure required messages are fresh
    */
@@ -195,6 +199,16 @@ private:
   /// ROS subscriber for single joint command
   rclcpp::Subscription<geometry_msgs::msg::Vector3>::SharedPtr
       single_joint_cmd_sub_;
+
+  /// ROS Subscriber for twist velocity commands (for learned policies)
+  rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr cmd_vel_sub_;
+
+  /// ROS publisher for time stamped twist velocity commands
+  rclcpp::Publisher<geometry_msgs::msg::TwistStamped>::SharedPtr
+      cmd_vel_stamped_pub_;
+
+  /// ROS publisher for state estimate messages
+  rclcpp::Publisher<quad_msgs::msg::RobotState>::SharedPtr state_estimate_pub_;
 
   /// ROS publisher for robot heartbeat
   rclcpp::Publisher<std_msgs::msg::Header>::SharedPtr robot_heartbeat_pub_;
@@ -278,6 +292,8 @@ private:
   /// Most recent state estimate
   quad_msgs::msg::RobotState last_robot_state_msg_;
 
+  quad_msgs::msg::RobotState last_state_estimate_msg_;
+
   /// Most recent local plan
   quad_msgs::msg::GRFArray::SharedPtr last_grf_array_msg_;
 
@@ -356,11 +372,17 @@ private:
   /// Define sitting joint angles
   std::vector<double> sit_joint_angles_;
 
+  /// Define path to Learned Policy ONNX File
+  std::string model_path_;
+
   /// QuadKD class
   std::shared_ptr<quad_utils::QuadKD> quadKD_;
 
   /// Leg Controller template class
   std::shared_ptr<LegController> leg_controller_;
+
+  /// Leg Controller template class
+  std::shared_ptr<LearnedPolicy> leg_policy_;
 
   /// State Estimator template class
   std::shared_ptr<StateEstimator> state_estimator_;
@@ -386,6 +408,15 @@ private:
   /// Best estimate of imu velocity
   Eigen::Vector3d imu_vel_estimate_;
 
+  /// Twist Input
+  Eigen::VectorXd cmd_vel_;
+
+  /// Commanded Velocity Filter Constant
+  double cmd_vel_filter_const_;
+
+  /// Scale for twist cmd_vel
+  double cmd_vel_scale_;
+
   /// Velocity filter time constant
   double filter_time_constant_;
 
@@ -407,6 +438,15 @@ private:
 
   /// Time of last publishing
   rclcpp::Time t_pub_;
+
+  /// Time of the most recent cmd vel data
+  rclcpp::Time last_cmd_vel_msg_time_;
+
+  /// Seed Value for Random Distribution
+  double seed_;
+
+  /// Last cmd_vel_msg
+  geometry_msgs::msg::Twist last_cmd_vel_msg_;
 
   /// Required for some hardware interfaces
   int argc_;
