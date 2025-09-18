@@ -4,9 +4,9 @@
 #include <geometry_msgs/msg/point.hpp>
 #include <geometry_msgs/msg/pose.hpp>
 #include <geometry_msgs/msg/vector3.hpp>
+#include <rclcpp/exceptions.hpp>
 #include <rclcpp/rclcpp.hpp>
 #include <rclcpp/time.hpp>
-#include <rclcpp/exceptions.hpp>
 #include <std_msgs/msg/header.hpp>
 
 #include "quad_utils/math_utils.hpp"
@@ -29,7 +29,8 @@ inline double getROSMessageAgeInMs(std_msgs::msg::Header header,
  * @param[in] header ROS Header that we wish to compute the age of
  * @return Age in ms (compared to ros::Time::now())
  */
-inline double getROSMessageAgeInMs(rclcpp::Node::SharedPtr &node, std_msgs::msg::Header header) {
+inline double getROSMessageAgeInMs(rclcpp::Node::SharedPtr &node,
+                                   std_msgs::msg::Header header) {
   rclcpp::Time t_compare = node->get_clock()->now();
   return quad_utils::getROSMessageAgeInMs(header, t_compare);
 }
@@ -39,7 +40,8 @@ inline double getROSMessageAgeInMs(rclcpp::Node::SharedPtr &node, std_msgs::msg:
  * @param[in] plan_start ROS Time to to compare to
  * @return Time in plan (compared to ros::Time::now())
  */
-inline double getDurationSinceTime(rclcpp::Node::SharedPtr &node, rclcpp::Time plan_start) {
+inline double getDurationSinceTime(rclcpp::Node::SharedPtr &node,
+                                   rclcpp::Time plan_start) {
   rclcpp::Time now = node->get_clock()->now();
   return (now - plan_start).seconds();
 }
@@ -52,7 +54,8 @@ inline double getDurationSinceTime(rclcpp::Node::SharedPtr &node, rclcpp::Time p
  * @param[in] plan_start ROS Time to to compare to
  * @param[in] dt Timestep used to discretize the plan
  */
-inline void getPlanIndex(rclcpp::Node::SharedPtr &node, rclcpp::Time plan_start, double dt, int &index,
+inline void getPlanIndex(rclcpp::Node::SharedPtr &node, rclcpp::Time plan_start,
+                         double dt, int &index,
                          double &first_element_duration) {
   double duration = getDurationSinceTime(node, plan_start);
   index = std::floor(duration / dt);
@@ -69,10 +72,10 @@ inline void getPlanIndex(rclcpp::Node::SharedPtr &node, rclcpp::Time plan_start,
 template <class ParamType>
 inline bool loadROSParam(rclcpp::Node::SharedPtr &node, std::string paramName,
                          ParamType &varName) {
-  if (!node->has_parameter(paramName)){
-    try{
+  if (!node->has_parameter(paramName)) {
+    try {
       node->declare_parameter<ParamType>(paramName);
-    } catch (const rclcpp::exceptions::ParameterAlreadyDeclaredException &e){
+    } catch (const rclcpp::exceptions::ParameterAlreadyDeclaredException &e) {
     }
   }
   if (!node->get_parameter(paramName, varName)) {
@@ -94,15 +97,16 @@ inline bool loadROSParam(rclcpp::Node::SharedPtr &node, std::string paramName,
  * @return boolean (true if found rosparam, false if loaded default)
  */
 template <class ParamType>
-inline bool loadROSParamDefault(rclcpp::Node::SharedPtr node, std::string paramName,
-                                ParamType &varName, ParamType defaultVal) {
-  if (!node->has_parameter(paramName)){
-    try{
+inline bool loadROSParamDefault(rclcpp::Node::SharedPtr node,
+                                std::string paramName, ParamType &varName,
+                                ParamType defaultVal) {
+  if (!node->has_parameter(paramName)) {
+    try {
       node->declare_parameter<ParamType>(paramName);
-    } catch (const rclcpp::exceptions::ParameterAlreadyDeclaredException &e){
+    } catch (const rclcpp::exceptions::ParameterAlreadyDeclaredException &e) {
     }
   }
-  
+
   if (!node->get_parameter(paramName, varName)) {
     varName = defaultVal;
     RCLCPP_INFO(
@@ -120,7 +124,7 @@ inline bool loadROSParamDefault(rclcpp::Node::SharedPtr node, std::string paramN
 //  * @param[in] stamp Timestamp for the state message
 //  * @param[in] frame Frame_id for the state message
 //  */
-// void updateStateHeaders(quad_msgs::RobotState &msg, ros::Time stamp,
+// void updateStateHeaders(quad_msgs::msg::RobotState &msg, ros::Time stamp,
 // std::string frame);
 
 /**
@@ -221,8 +225,9 @@ void interpRobotPlan(quad_msgs::msg::RobotPlan msg, double t,
  * too large)
  * @return MultiFootState message
  */
-quad_msgs::msg::MultiFootState interpMultiFootPlanContinuous(
-    quad_msgs::msg::MultiFootPlanContinuous msg, double t);
+quad_msgs::msg::MultiFootState
+interpMultiFootPlanContinuous(quad_msgs::msg::MultiFootPlanContinuous msg,
+                              double t);
 
 // /**
 //  * @brief Interpolate data from a robot state trajectory message.
@@ -231,8 +236,8 @@ quad_msgs::msg::MultiFootState interpMultiFootPlanContinuous(
 //  * too large)
 //  * @return Robot state message
 //  */
-// quad_msgs::RobotState interpRobotStateTraj(quad_msgs::RobotStateTrajectory
-// msg,
+// quad_msgs::msg::RobotState
+// interpRobotStateTraj(quad_msgs::msg::RobotStateTrajectory msg,
 //                                            double t);
 
 /**
@@ -307,8 +312,8 @@ void eigenToGRFArrayMsg(Eigen::VectorXd grf_array,
  * @param[in] grf_array_msg_ GRFArray msg with grf data
  * @return grf_array Eigen vector with grf data in leg order
  */
-Eigen::VectorXd grfArrayMsgToEigen(
-    const quad_msgs::msg::GRFArray &grf_array_msg_);
+Eigen::VectorXd
+grfArrayMsgToEigen(const quad_msgs::msg::GRFArray &grf_array_msg_);
 
 /**
  * @brief Convert robot foot state message to Eigen
@@ -422,6 +427,6 @@ void Eigen3ToPointMsg(const Eigen::Vector3d &eigen_vec,
  */
 void pointMsgToEigen(const geometry_msgs::msg::Point &vec,
                      Eigen::Vector3d &eigen_vec);
-}  // namespace quad_utils
+} // namespace quad_utils
 
 #endif

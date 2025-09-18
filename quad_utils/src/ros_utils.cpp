@@ -36,7 +36,8 @@ void interpHeader(std_msgs::msg::Header header_1,
       static_cast<int64_t>(t_interp * state_duration.nanoseconds());
 
   // Duration Takes Argument Nanoseconds, not Double
-  rclcpp::Duration interp_duration = rclcpp::Duration::from_nanoseconds(interp_ns);
+  rclcpp::Duration interp_duration =
+      rclcpp::Duration::from_nanoseconds(interp_ns);
   rclcpp::Time interp_time = time1 + interp_duration;
 
   // Copy and Update the Header
@@ -232,8 +233,9 @@ void interpRobotPlan(quad_msgs::msg::RobotPlan msg, double t,
   interpGRFArray(grf_1, grf_2, t_interp, interp_grf);
 }
 
-quad_msgs::msg::MultiFootState interpMultiFootPlanContinuous(
-    quad_msgs::msg::MultiFootPlanContinuous msg, double t) {
+quad_msgs::msg::MultiFootState
+interpMultiFootPlanContinuous(quad_msgs::msg::MultiFootPlanContinuous msg,
+                              double t) {
   // Define some useful timing parameters
 
   rclcpp::Time t0_ros(msg.states.front().header.stamp);
@@ -275,8 +277,8 @@ quad_msgs::msg::MultiFootState interpMultiFootPlanContinuous(
   return interp_state;
 }
 
-// quad_msgs::RobotState interpRobotStateTraj(quad_msgs::RobotStateTrajectory
-// msg,
+// quad_msgs::msg::RobotState
+// interpRobotStateTraj(quad_msgs::msg::RobotStateTrajectory msg,
 //                                            double t) {
 //   // Define some useful timing parameters
 //   ros::Time t0_ros = msg.states.front().header.stamp;
@@ -287,7 +289,7 @@ quad_msgs::msg::MultiFootState interpMultiFootPlanContinuous(
 //   ros::Time t_ros = t0_ros + ros::Duration(t);
 
 //   // Declare variables for interpolating between, both for input and output
-//   data quad_msgs::RobotState state_1, state_2, interp_state;
+//   data quad_msgs::msg::RobotState state_1, state_2, interp_state;
 
 //   // Find the correct index for interp (return the first index if t < 0)
 //   int index = 0;
@@ -580,8 +582,8 @@ void eigenToGRFArrayMsg(Eigen::VectorXd grf_array,
   }
 }
 
-Eigen::VectorXd grfArrayMsgToEigen(
-    const quad_msgs::msg::GRFArray &grf_array_msg_) {
+Eigen::VectorXd
+grfArrayMsgToEigen(const quad_msgs::msg::GRFArray &grf_array_msg_) {
   Eigen::VectorXd grf_array(3 * grf_array_msg_.vectors.size());
 
   for (int i = 0; i < grf_array_msg_.vectors.size(); i++) {
@@ -702,4 +704,4 @@ void Eigen3ToPointMsg(const Eigen::Vector3d &eigen_vec,
   vec.y = eigen_vec.y();
   vec.z = eigen_vec.z();
 }
-}  // namespace quad_utils
+} // namespace quad_utils

@@ -85,13 +85,14 @@ target_include_directories(robot_driver PUBLIC
   /usr/local/include/onnxruntime
 )
 
-# target_link_libraries(robot_driver
-#   ${rclcpp_LIBRARIES}
-#   ${std_msgs_LIBRARIES}
-#   ${quad_msgs_LIBRARIES}
-#   ${quad_utils_LIBRARIES}
-#   Eigen3::Eigen
-# )
+target_link_libraries(robot_driver
+  ${rclcpp_LIBRARIES}
+  ${std_msgs_LIBRARIES}
+  ${quad_msgs_LIBRARIES}
+  ${quad_utils_LIBRARIES}
+  Eigen3::Eigen
+)
+
 target_link_libraries(robot_driver ${GRMBLINK})
 target_link_libraries(robot_driver ${SOUL_CANFD_LIB})
 target_link_libraries(robot_driver ${ONNXRUNTIME_LIB})

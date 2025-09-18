@@ -165,7 +165,7 @@ def launch_robot_driver(context, *args, **kwargs):
                 'robot_type': robot_type,
                 'controller': controller,
                 'mocap': 'false',
-                'is_hardware': 'false',
+                'is_hardware': 'true',
                 'namespace': namespace,
                 'robot_description': urdf, 
             }.items()

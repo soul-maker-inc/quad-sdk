@@ -1,16 +1,16 @@
 #ifndef QUAD_KD_H
 #define QUAD_KD_H
 
+#include <Eigen/Geometry>
+#include <chrono>
+#include <grid_map_core/GridMap.hpp>
 #include <math.h>
+#include <random>
 #include <rbdl/addons/urdfreader/urdfreader.h>
 #include <rbdl/rbdl.h>
 #include <rbdl/rbdl_utils.h>
 #include <rclcpp/rclcpp.hpp>
 #include <tf2/LinearMath/Quaternion.h>
-#include <Eigen/Geometry>
-#include <chrono>
-#include <grid_map_core/GridMap.hpp>
-#include <random>
 #include <vector>
 
 #include "quad_utils/function_timer.hpp"
@@ -25,12 +25,11 @@ namespace quad_utils {
   complicated computations that would be a pain to write out by hand.
 */
 class QuadKD {
- public:
+public:
   /**
    * @brief Constructor for QuadKD Class
    * @return Constructed object of type QuadKD
    */
-  QuadKD();
   QuadKD(rclcpp::Node::SharedPtr node);
 
   /**
@@ -240,9 +239,10 @@ class QuadKD {
    * @param[in] body_rpy Orientation of body frame in roll, pitch, yaw
    * @param[out] nominal_hip_pos_world Location of nominal hip in world frame
    */
-  void worldToNominalHipFKWorldFrame(
-      int leg_index, Eigen::Vector3d body_pos, Eigen::Vector3d body_rpy,
-      Eigen::Vector3d &nominal_hip_pos_world) const;
+  void
+  worldToNominalHipFKWorldFrame(int leg_index, Eigen::Vector3d body_pos,
+                                Eigen::Vector3d body_rpy,
+                                Eigen::Vector3d &nominal_hip_pos_world) const;
 
   /**
    * @brief Compute Jacobian for generalized coordinates
@@ -373,7 +373,7 @@ class QuadKD {
     return (point.z() - terrain.atPosition("z", pos));
   }
 
- private:
+private:
   /// Number of feet
   const int num_feet_ = 4;
 
@@ -455,6 +455,6 @@ class QuadKD {
   const Eigen::VectorXd mm_slope_ = tau_max_.cwiseQuotient(vel_max_);
 };
 
-}  // namespace quad_utils
+} // namespace quad_utils
 
-#endif  // QUAD_KD_H
+#endif // QUAD_KD_H

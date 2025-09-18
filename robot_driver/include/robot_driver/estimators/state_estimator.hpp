@@ -16,7 +16,7 @@
    StateEstimator provides an abstract state estimator class
 */
 class StateEstimator {
- public:
+public:
   /**
    * @brief Constructor for StateEstimator
    * @return Constructed object of type StateEstimator
@@ -35,7 +35,7 @@ class StateEstimator {
    * derived class
    * @param[out] last_robot_state_msg robot state
    */
-  virtual bool updateOnce(quad_msgs::msg::RobotState& last_robot_state_msg) = 0;
+  virtual bool updateOnce(quad_msgs::msg::RobotState &last_robot_state_msg) = 0;
 
   /**
    * @brief Read IMU data
@@ -44,9 +44,9 @@ class StateEstimator {
    * @param[out] wk Angular acceleration
    * @param[out] qk Orientation in quaternion
    */
-  void readIMU(const sensor_msgs::msg::Imu::SharedPtr& last_imu_msg,
-               Eigen::Vector3d& fk, Eigen::Vector3d& wk,
-               Eigen::Quaterniond& qk);
+  void readIMU(const sensor_msgs::msg::Imu::SharedPtr &last_imu_msg,
+               Eigen::Vector3d &fk, Eigen::Vector3d &wk,
+               Eigen::Quaterniond &qk);
 
   /**
    * @brief Read joint encoder data
@@ -54,8 +54,11 @@ class StateEstimator {
    * @param[out] jk Jointstate in vector (12 * 1)
    */
   void readJointEncoder(
-      const sensor_msgs::msg::JointState::SharedPtr& last_joint_state_msg,
-      Eigen::VectorXd& jk);
+      const sensor_msgs::msg::JointState::SharedPtr &last_joint_state_msg,
+      Eigen::VectorXd &jk);
+  void readJointEncoder(
+      const sensor_msgs::msg::JointState::SharedPtr &last_joint_state_msg,
+      Eigen::VectorXd &jk, Eigen::VectorXd &vk);
 
   /**
    * @brief Load Mocap data to protected variable
@@ -71,7 +74,7 @@ class StateEstimator {
   void loadSensorMsg(sensor_msgs::msg::Imu last_imu_msg,
                      sensor_msgs::msg::JointState last_joint_state_msg);
 
- protected:
+protected:
   /// Robot Namespace
   std::string robot_ns_;
 
@@ -94,4 +97,4 @@ class StateEstimator {
   sensor_msgs::msg::JointState last_joint_state_msg_;
 };
 
-#endif  // STATE_ESTIMATOR_H
+#endif // STATE_ESTIMATOR_H

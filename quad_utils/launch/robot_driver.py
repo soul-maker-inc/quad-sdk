@@ -47,6 +47,7 @@ def generate_launch_description():
         package='robot_driver',
         executable='robot_driver_node',
         name='robot_driver',
+        launch_prefix='sudo',
         # output='screen',
         parameters=[
             robot_driver_param_file,

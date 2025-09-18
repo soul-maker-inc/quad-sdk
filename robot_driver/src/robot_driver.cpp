@@ -155,8 +155,10 @@ RobotDriver::RobotDriver(std::shared_ptr<rclcpp::Node> node, int argc,
   // Initialize hardware interface
   if (is_hardware_) {
     if (robot_name == "spirit" || robot_name == "spirit_rotors") {
+      RCLCPP_INFO(node_->get_logger(), "Initing SpiritInterface");
       hardware_interface_ = std::make_shared<SpiritInterface>();
     } else if (robot_name == "yj01") {
+      RCLCPP_INFO(node_->get_logger(), "Initing Yj01Interface");
       hardware_interface_ = std::make_shared<Yj01Interface>();
     } else {
       RCLCPP_ERROR_STREAM(node_->get_logger(), "Invalid robot name "
@@ -531,7 +533,7 @@ bool RobotDriver::updateControl() {
               dynamic_cast<InverseDynamicsController *>(
                   leg_controller_.get())) {
         // Uncomment to publish trajectory reference state
-        // quad_msgs::RobotState ref_state_msg = p->getReferenceState();
+        // quad_msgs::msg::RobotState ref_state_msg = p->getReferenceState();
         // trajectry_robot_state_pub_.publish(ref_state_msg);
       }
     }
